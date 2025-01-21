@@ -1,7 +1,8 @@
 export interface StockProps {
 	companyName: string;
 	stockSymbol: string;
-	price: string;
-	change: string;
-	percentageChange: string;
+	price: number | string;
+	change: number | string;
+	percentageChange: number | string;
+	favorite?: boolean;
 }

@@ -15,6 +15,7 @@ import { stockData } from "@/data";
 import { setStockType } from "@/store/features/settingSlice";
 import { useAppDispatch, useAppSelector } from "@/store/useStore";
 import { StockProps } from "@/types";
+
 ModuleRegistry.registerModules([AllCommunityModule]);
 
 const rowSelection: RowSelectionOptions = {
@@ -27,7 +28,7 @@ const StockTable = () => {
   const dispatch = useAppDispatch();
   const [rowData, setRowData] = useState<StockProps | null>(null);
   const { stockType } = useAppSelector((state) => state.setting);
-  const [data] = useState(stockData);
+
   const [formData, setFormData] = useState({
     companyName: "",
     stockSymbol: "",
@@ -70,6 +71,11 @@ const StockTable = () => {
 
     if (gridRef.current) {
       gridRef.current!.api.applyTransaction({ add: [newRow] });
+      const allData: StockProps[] = [];
+      gridRef.current!.api.forEachNode((node) => {
+        allData.push(node.data);
+      });
+      localStorage.setItem("StocksData", JSON.stringify(allData));
     }
 
     // Clear fields after submitting a form
@@ -85,20 +91,32 @@ const StockTable = () => {
   // Remove a Row
   const handleRemoveStock = () => {
     gridRef.current!.api.applyTransaction({ remove: [rowData] });
+    const allData: StockProps[] = [];
+    gridRef.current!.api.forEachNode((node) => {
+      allData.push(node.data);
+    });
+
+    localStorage.setItem("StocksData", JSON.stringify(allData));
   };
 
   // Change Stocks List
   const handleChangeList = (type: "favorite" | "all") => {
     dispatch(setStockType(type));
+
+    // Set Filter
+    gridRef.current!.api.setFilterModel({
+      favorite: {
+        filterType: "text",
+        type: type === "favorite" ? "true" : null,
+      },
+    });
+    gridRef.current!.api.onFilterChanged();
   };
 
-  const conditionData = () => {
-    if (stockType === "favorite") {
-      return data.filter((item) => item.favorite);
-    } else {
-      return data;
-    }
-  };
+  const storedData =
+    typeof window !== "undefined" && localStorage.getItem("StocksData") !== null
+      ? JSON.parse(localStorage.getItem("StocksData") as string)
+      : stockData;
 
   return (
     <div className=' bg-blue-900 p-6'>
@@ -142,7 +160,7 @@ const StockTable = () => {
 
           <AgGridReact
             ref={gridRef}
-            rowData={conditionData()}
+            rowData={storedData}
             columnDefs={columnDefs}
             defaultColDef={defaultColDef}
             rowSelection={rowSelection}
