@@ -1,4 +1,4 @@
-# Funding Pips Frontend Assessment - Completed
+# Funding Pips Frontend Assessment 
 
 
 This project is completed as part of the Funding Pips Frontend Assessment. The goal of this project was to build a Stock Price Tracker Dashboard using modern frontend technologies. React, Redux Toolkit, Tailwind CSS, TypeScript, and Testing Library were used in this project. Additionally, optimizations for performance and responsive design were implemented.
